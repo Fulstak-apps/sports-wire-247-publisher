@@ -6,7 +6,7 @@ const SOURCES = [
 export default {
   async fetch(request, env) {
     return new Response(JSON.stringify({
-      service: "crash-out-sports-newsroom-monitor",
+      service: "sports-wire-247-newsroom-monitor",
       status: "ok",
       sources: SOURCES,
       cron: "*/20 * * * *",

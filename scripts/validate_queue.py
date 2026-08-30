@@ -34,8 +34,8 @@ def main():
 
     if item.get("status") != "ready":
         errors += fail("status must be ready")
-    if item.get("brand") != "Crash Out Sports":
-        errors += fail("brand must be Crash Out Sports")
+    if item.get("brand") != "Sports Wire 24/7":
+        errors += fail("brand must be Sports Wire 24/7")
     if item.get("verification_source_count", 0) < 2 or len(item.get("source_urls", [])) < 2:
         errors += fail("at least two verification sources are required")
     if item.get("source_photo_used") is not True:
@@ -43,7 +43,7 @@ def main():
 
     text_blob = json.dumps(item).casefold()
     if "automated" in text_blob:
-        errors += fail("the word automated is not permitted in Crash Out Sports editorial assets")
+        errors += fail("the word automated is not permitted in Sports Wire 24/7 editorial assets")
 
     for handle_field in (
         "person_instagram_handle", "lead_source_instagram_handle", "reporting_source_instagram_handle",

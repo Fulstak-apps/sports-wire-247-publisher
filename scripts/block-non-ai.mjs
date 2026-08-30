@@ -17,7 +17,7 @@ for (const file of await fs.readdir(dir)) {
       && item.photo_recency_checked === true);
   if (item.status === "ready" && (!approvedVisual || !sourceGrounded || !validSlideCount || !verified)) {
     item.status = "paused";
-    item.pause_reason = "Blocked: Crash Out Sports requires two-source verification, a current story-relevant visual and a one- to three-slide post";
+    item.pause_reason = "Blocked: Sports Wire 24/7 requires two-source verification, a current story-relevant visual and a one- to three-slide post";
     await fs.writeFile(filePath, `${JSON.stringify(item, null, 2)}\n`);
     console.log(`Blocked unsafe queue item: ${file}`);
   }

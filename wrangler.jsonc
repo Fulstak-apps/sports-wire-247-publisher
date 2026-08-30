@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "crash-out-sports-publisher",
+  "name": "sports-wire-247-publisher",
   "main": "worker/index.js",
   "compatibility_date": "2026-08-29",
   "workers_dev": true,

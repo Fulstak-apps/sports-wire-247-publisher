@@ -172,7 +172,7 @@ for (const file of files) {
   const itemPath = path.join(queueDir, file);
   const item = JSON.parse(await fs.readFile(itemPath, "utf8"));
   if (!Array.isArray(item.slides) || item.slides.length < 1 || item.slides.length > 3) {
-    console.error(`Skipped ${file}: Crash Out Sports feed posts require one to three slides`);
+    console.error(`Skipped ${file}: Sports Wire 24/7 feed posts require one to three slides`);
     continue;
   }
   if (item.status === "paused" || item.status === "media_refresh_required") continue;
@@ -216,7 +216,7 @@ for (const file of files) {
     await save(itemPath, item);
   }
 
-  // Threads is required for every published Crash Out Sports carousel. Honor queue items that
+  // Threads is required for every published Sports Wire 24/7 carousel. Honor queue items that
   // were previously marked Instagram-only so they can be backfilled automatically.
   if (threadsToken && threadsUserId && (!item.threads_status || item.threads_status === "skipped_for_instagram_only_post")) {
     try {

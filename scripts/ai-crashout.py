@@ -56,7 +56,7 @@ def feed_image_url(item,link):
 def discover_source_image(source):
     candidates=[]
     if source.get('image_url'):candidates.append(source['image_url'])
-    req=urllib.request.Request(source['link'],headers={'User-Agent':'Mozilla/5.0 CrashOutSports/1.0'})
+    req=urllib.request.Request(source['link'],headers={'User-Agent':'Mozilla/5.0 SportsWire247/1.0'})
     try:
         with urllib.request.urlopen(req,timeout=30) as response:page=response.read(2_000_000).decode('utf-8','ignore')
     except Exception:page=''
@@ -73,10 +73,10 @@ def discover_source_image(source):
     for candidate in candidates:
         try:return candidate,image_data_url(candidate)
         except Exception as error:print('Reference candidate failed:',candidate,error)
-    raise RuntimeError('Selected story has no usable event-specific visual reference; Crash Out Sports will not invent a generic scene')
+    raise RuntimeError('Selected story has no usable event-specific visual reference; Sports Wire 24/7 will not invent a generic scene')
 
 def image_data_url(url):
-    req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 CrashOutSports/1.0','Accept':'image/*'})
+    req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 SportsWire247/1.0','Accept':'image/*'})
     with urllib.request.urlopen(req,timeout=45) as response:raw=response.read(12_000_001)
     if len(raw)>12_000_000:raise RuntimeError('Source reference image exceeds 12 MB')
     image=Image.open(io.BytesIO(raw)).convert('RGB'); image.thumbnail((1600,1600),Image.Resampling.LANCZOS)
@@ -103,7 +103,7 @@ def parse_feed():
     now=datetime.now(timezone.utc); cutoff=now.timestamp()-MAX_AGE_HOURS*3600; items=[]
     for feed_url in FEED_URLS:
         try:
-            req=urllib.request.Request(feed_url,headers={'User-Agent':'CrashOutSports-SourceMonitor/1.0'})
+            req=urllib.request.Request(feed_url,headers={'User-Agent':'SportsWire247-SourceMonitor/1.0'})
             with urllib.request.urlopen(req,timeout=30) as r: raw=r.read()
             root=ET.fromstring(raw)
         except Exception as error:
@@ -135,7 +135,7 @@ def existing():
 
 def choose(cands):
     text='\n\n'.join(f"[{i}] TITLE: {c['title']}\nPUBLISHED: {c['published']}\nSOURCE: {c['link']}\nDETAILS: {c['description']}" for i,c in enumerate(cands))
-    prompt=f'''You are the senior editor for Crash Out Sports, a fast, entertaining, independent sports newsroom. Pick ONE genuinely fresh and publishable story from this feed. Core coverage is WNBA, NBA, NFL, MLB, NHL and NCAA. Give the WNBA equal editorial weight. Also allow major soccer, combat sports, golf, tennis, motorsports, international, amateur, high-school, youth and unusual sports stories when verified and genuinely exceptional.
+    prompt=f'''You are the senior editor for Sports Wire 24/7, a fast, entertaining, independent sports newsroom. Pick ONE genuinely fresh and publishable story from this feed. Core coverage is WNBA, NBA, NFL, MLB, NHL and NCAA. Give the WNBA equal editorial weight. Also allow major soccer, combat sports, golf, tennis, motorsports, international, amateur, high-school, youth and unusual sports stories when verified and genuinely exceptional.
 
 Prioritize confirmed trades, free-agent signings, contract extensions, releases, waivers, injuries, suspensions, coaching/front-office moves, draft developments, scores, records, ownership and media-rights deals, athlete business deals, and remarkable verified moments. Reject filler, recycled highlights, engagement bait, stale stories, unsupported rumors, gambling picks and stories involving minors where identification is unnecessary. Use web search and confirm the core claim with at least TWO independent credible sources. Prefer official league/team/school/player/agent statements and established reporting. A feed post may be a lead, but it is not sufficient confirmation by itself.
 
@@ -152,7 +152,7 @@ CANDIDATES:\n{text}'''
     result['source_item']=cands[idx]; return result
 
 def generate_art(scene,headline,reference_data_url):
-    prompt=f'''Create ONE original editorial illustration for Crash Out Sports, a premium independent sports-news brand.
+    prompt=f'''Create ONE original editorial illustration for Sports Wire 24/7, a premium independent sports-news brand.
 ACTUAL EVENT TO DEPICT: {scene}
 REFERENCE PHOTO ROLE: The supplied source image is the factual visual reference. Preserve the recognizable people, identity, number of people, clothing, setting, pose, important props, event details and overall camera direction that make this specific moment newsworthy. Do not replace it with a generic imagined scene.
 
@@ -192,22 +192,22 @@ def person_tag(draw,x,y,label):
 def assets(story_id,headline,story,art_bytes,source_label,person_label='',carousel_pages=2,extra_context=''):
     MEDIA.mkdir(parents=True,exist_ok=True); art_path=MEDIA/f'{story_id}-art.jpg'; art_path.write_bytes(art_bytes); art=Image.open(art_path).convert('RGB')
     W,H=1080,1350; s1=Image.new('RGB',(W,H),INK); d=ImageDraw.Draw(s1); hero=ImageOps.fit(art,(1000,800),method=Image.Resampling.LANCZOS,centering=(.5,.42)); s1.paste(hero,(40,40))
-    d.rectangle((40,40,430,100),fill=ACID); d.text((58,52),'CRASH OUT SPORTS',font=fnt(27),fill=INK); person_tag(d,58,800,person_label); d.rectangle((40,875,1040,1310),fill=BLUE)
+    d.rectangle((40,40,430,100),fill=ACID); d.text((58,52),'SPORTS WIRE 24/7',font=fnt(27),fill=INK); person_tag(d,58,800,person_label); d.rectangle((40,875,1040,1310),fill=BLUE)
     hf,ls=fit_head(d,headline,900,4); y=915
     for line in ls:d.text((72,y),line,font=hf,fill=PAPER); y+=hf.size+9
-    d.text((72,1260),f'{source_label.upper()}  •  CRASH OUT SPORTS',font=fnt(22),fill=ACID); p1=MEDIA/f'{story_id}-slide-1.jpg'; s1.save(p1,quality=94,optimize=True)
-    s2=Image.new('RGB',(W,H),PAPER); d=ImageDraw.Draw(s2); d.rectangle((0,0,W,18),fill=ACID); d.text((58,55),'CRASH OUT SPORTS',font=fnt(38),fill=INK); d.text((58,135),'WHAT HAPPENED',font=fnt(38),fill=ORANGE); d.rectangle((58,195,1022,201),fill=INK)
+    d.text((72,1260),f'{source_label.upper()}  •  SPORTS WIRE 24/7',font=fnt(22),fill=ACID); p1=MEDIA/f'{story_id}-slide-1.jpg'; s1.save(p1,quality=94,optimize=True)
+    s2=Image.new('RGB',(W,H),PAPER); d=ImageDraw.Draw(s2); d.rectangle((0,0,W,18),fill=ACID); d.text((58,55),'SPORTS WIRE 24/7',font=fnt(38),fill=INK); d.text((58,135),'WHAT HAPPENED',font=fnt(38),fill=ORANGE); d.rectangle((58,195,1022,201),fill=INK)
     ls=wrap(d,story.replace('\n',' '),fnt(38,False),900); y=245
     for line in ls[:17]:d.text((70,y),line,font=fnt(38,False),fill=INK); y+=51
     d.rectangle((58,1195,1022,1201),fill=ACID); d.text((58,1235),f'SOURCE: {source_label}',font=fnt(27),fill=INK); d.text((58,1285),'DEALS  •  SCORES  •  CULTURE',font=fnt(25),fill=ORANGE); p2=MEDIA/f'{story_id}-slide-2.jpg'; s2.save(p2,quality=94,optimize=True); slides=[p1,p2]
     if carousel_pages==3 and extra_context:
-        s3=Image.new('RGB',(W,H),PAPER); d=ImageDraw.Draw(s3); d.rectangle((0,0,W,18),fill=ACID); d.text((58,55),'CRASH OUT SPORTS',font=fnt(38),fill=INK); d.text((58,135),'MORE CONTEXT',font=fnt(38),fill=ORANGE); d.rectangle((58,195,1022,201),fill=INK)
+        s3=Image.new('RGB',(W,H),PAPER); d=ImageDraw.Draw(s3); d.rectangle((0,0,W,18),fill=ACID); d.text((58,55),'SPORTS WIRE 24/7',font=fnt(38),fill=INK); d.text((58,135),'MORE CONTEXT',font=fnt(38),fill=ORANGE); d.rectangle((58,195,1022,201),fill=INK)
         ls=wrap(d,extra_context.replace('\n',' '),fnt(38,False),900); y=245
         for line in ls[:17]:d.text((70,y),line,font=fnt(38,False),fill=INK); y+=51
-        d.rectangle((58,1195,1022,1201),fill=ACID); d.text((58,1235),f'SOURCE: {source_label}',font=fnt(27),fill=INK); d.text((58,1285),'SLIDE 3 OF 3  •  CRASH OUT SPORTS',font=fnt(22),fill=ORANGE); p3=MEDIA/f'{story_id}-slide-3.jpg'; s3.save(p3,quality=94,optimize=True); slides.append(p3)
-    SW,SH=1080,1920; st=Image.new('RGB',(SW,SH),INK); sd=ImageDraw.Draw(st); sa=ImageOps.fit(art,(980,1040),method=Image.Resampling.LANCZOS,centering=(.5,.4)); st.paste(sa,(50,50)); sd.rectangle((50,50,430,102),fill=ACID); sd.text((68,60),'CRASH OUT SPORTS',font=fnt(25),fill=INK); person_tag(sd,62,1050,person_label); sd.rectangle((50,1135,1030,1860),fill=BLUE); sf,sl=fit_head(sd,headline,880,5); y=1185
+        d.rectangle((58,1195,1022,1201),fill=ACID); d.text((58,1235),f'SOURCE: {source_label}',font=fnt(27),fill=INK); d.text((58,1285),'SLIDE 3 OF 3  •  SPORTS WIRE 24/7',font=fnt(22),fill=ORANGE); p3=MEDIA/f'{story_id}-slide-3.jpg'; s3.save(p3,quality=94,optimize=True); slides.append(p3)
+    SW,SH=1080,1920; st=Image.new('RGB',(SW,SH),INK); sd=ImageDraw.Draw(st); sa=ImageOps.fit(art,(980,1040),method=Image.Resampling.LANCZOS,centering=(.5,.4)); st.paste(sa,(50,50)); sd.rectangle((50,50,430,102),fill=ACID); sd.text((68,60),'SPORTS WIRE 24/7',font=fnt(25),fill=INK); person_tag(sd,62,1050,person_label); sd.rectangle((50,1135,1030,1860),fill=BLUE); sf,sl=fit_head(sd,headline,880,5); y=1185
     for line in sl:sd.text((78,y),line,font=sf,fill=PAPER); y+=sf.size+8
-    sd.text((78,1800),'CRASH OUT SPORTS  •  24/7 SPORTS NEWS',font=fnt(23),fill=ACID); ps=MEDIA/f'{story_id}-story.jpg'; st.save(ps,quality=94,optimize=True); return slides,ps
+    sd.text((78,1800),'SPORTS WIRE 24/7  •  SPORTS NEWS',font=fnt(23),fill=ACID); ps=MEDIA/f'{story_id}-story.jpg'; st.save(ps,quality=94,optimize=True); return slides,ps
 
 def next_id(headline):
     nums=[]
@@ -217,7 +217,7 @@ def next_id(headline):
     n=max(nums,default=0)+1; slug=re.sub(r'[^a-z0-9]+','-',headline.lower()).strip('-')[:55] or 'story'; return f'{n:03d}-{slug}'
 
 def main():
-    if not os.environ.get('OPENAI_API_KEY'): raise RuntimeError('OPENAI_API_KEY is required. Crash Out Sports refuses to publish without verification and owned artwork.')
+    if not os.environ.get('OPENAI_API_KEY'): raise RuntimeError('OPENAI_API_KEY is required. Sports Wire 24/7 refuses to publish without verification and owned artwork.')
     cands=[c for c in parse_feed() if c['id'] not in existing() and c['link'] not in existing()]
     if not cands: print('Sports feed: no new candidates.'); return
     choice=choose(cands); src=choice['source_item']; headline=clean(choice['headline']); story=clean(choice['story']); caption=clean(choice['caption']); label=clean(choice.get('source_label') or 'Verified reporting')
@@ -243,12 +243,12 @@ def main():
     sid=next_id(headline); slides,ps=assets(sid,headline,story,art,label,person_label,pages,extra_context); url=src['link']; identity_line=f'\n\n{person} ({handle})' if person_label else ''
     source_lines='\n'.join(f'- {clean(s.get("name") or "Source")}: {clean(s.get("url"))}' for s in verification_sources if isinstance(s,dict))
     if pages == 1: slides = slides[:1]
-    item={'id':sid,'status':'ready','brand':'Crash Out Sports','league':clean(choice.get('league')),'story_type':clean(choice.get('story_type')),'confirmation_status':clean(choice.get('confirmation_status')),'verification_source_count':len(verified_urls),'ai_generated_art':ai_art,'visual_asset_type':visual_type,'visual_asset_rights':visual_rights,'created_at':datetime.now(timezone.utc).isoformat(),'source':label,'source_urls':verified_urls,'source_url':url,'source_guid':src['id'],'source_title':src['title'],'source_published_at':src['published'],'story_fingerprint':re.sub(r'[^a-z0-9]+',' ',headline.lower()).strip(),'headline':headline,'body':story,'caption':f'{caption}{identity_line}\n\nSources:\n{source_lines}\n\n#CrashOutSports #SportsNews','threads_text':f'{headline}{identity_line}\n\n{story}\n\n#CrashOutSports','featured_person':person,'person_instagram_handle':handle,'person_handle_verified':bool(handle),'person_handle_verified_url':profile,'displayed_person_label':person_label,'visual_prompt':choice['visual_scene'],'slides':[str(p.relative_to(ROOT)) for p in slides],'carousel_page_count':len(slides),'story':str(ps.relative_to(ROOT)),'media_urls':[],'source_image_url':reference_url,'source_photo_used':True,'source_image_role':'current factual visual used in the finished branded post','photo_recency_checked':True,'photo_event_relevance':'event_specific','photo_context_summary':choice['visual_scene'],'photo_capture_date':src['published'][:10],'visual_asset_source_urls':[src['link']]}
+    item={'id':sid,'status':'ready','brand':'Sports Wire 24/7','league':clean(choice.get('league')),'story_type':clean(choice.get('story_type')),'confirmation_status':clean(choice.get('confirmation_status')),'verification_source_count':len(verified_urls),'ai_generated_art':ai_art,'visual_asset_type':visual_type,'visual_asset_rights':visual_rights,'created_at':datetime.now(timezone.utc).isoformat(),'source':label,'source_urls':verified_urls,'source_url':url,'source_guid':src['id'],'source_title':src['title'],'source_published_at':src['published'],'story_fingerprint':re.sub(r'[^a-z0-9]+',' ',headline.lower()).strip(),'headline':headline,'body':story,'caption':f'{caption}{identity_line}\n\nSources:\n{source_lines}\n\n#SportsWire247 #SportsNews','threads_text':f'{headline}{identity_line}\n\n{story}\n\n#SportsWire247','featured_person':person,'person_instagram_handle':handle,'person_handle_verified':bool(handle),'person_handle_verified_url':profile,'displayed_person_label':person_label,'visual_prompt':choice['visual_scene'],'slides':[str(p.relative_to(ROOT)) for p in slides],'carousel_page_count':len(slides),'story':str(ps.relative_to(ROOT)),'media_urls':[],'source_image_url':reference_url,'source_photo_used':True,'source_image_role':'current factual visual used in the finished branded post','photo_recency_checked':True,'photo_event_relevance':'event_specific','photo_context_summary':choice['visual_scene'],'photo_capture_date':src['published'][:10],'visual_asset_source_urls':[src['link']]}
     (QUEUE/f'{sid}.json').write_text(json.dumps(item,indent=2)+'\n'); print('Created:',sid)
 if __name__=='__main__':
     try:
         main()
     except Exception:
         traceback.print_exc()
-        print('Crash Out Sports pipeline failed closed; nothing was published.')
+        print('Sports Wire 24/7 pipeline failed closed; nothing was published.')
         raise

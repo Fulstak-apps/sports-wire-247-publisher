@@ -1,6 +1,6 @@
-# Crash Out Sports 24/7 source monitor
+# Sports Wire 24/7 source monitor
 
-This directory defines the monitoring contract for Crash Out Sports. It normalizes and deduplicates events, verifies claims and hands qualified stories to the publisher queue.
+This directory defines the monitoring contract for Sports Wire 24/7. It normalizes and deduplicates events, verifies claims and hands qualified stories to the publisher queue.
 
 Source tiers:
 
@@ -15,7 +15,7 @@ Runtime contract:
 1. Poll on a short interval.
 2. Persist a cursor per source.
 3. Normalize links, entities, timestamps, and claim fingerprints.
-4. Deduplicate across sources and against the last 72 hours of Crash Out Sports posts.
+4. Deduplicate across sources and against the last 72 hours of Sports Wire 24/7 posts.
 5. Confirm every core claim with at least two credible sources.
 6. Obtain a documented reuse-permitted image.
 7. Write one queue item with source handle, subject handle, source URL, rights basis, verification notes, graphic asset, caption, and publish-after time.
