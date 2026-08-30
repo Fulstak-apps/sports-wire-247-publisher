@@ -18,7 +18,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SPORTS_RSS_URL: ${{ secrets.SPORTS_RSS_URL }}
   MAX_NEW_ITEMS: "30"
   MAX_SOURCE_AGE_HOURS: "24"
 

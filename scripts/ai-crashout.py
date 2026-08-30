@@ -8,7 +8,16 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 from openai import OpenAI
 
 ROOT=Path(__file__).resolve().parents[1]; QUEUE=ROOT/'queue'; MEDIA=ROOT/'media'
-FEED_URL=os.environ.get('SPORTS_RSS_URL','').strip()
+DEFAULT_FEEDS=(
+    'https://news.google.com/rss/search?q=WNBA+breaking+news+trade+signing+injury&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=NBA+breaking+news+trade+signing+contract&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=NFL+breaking+news+trade+signing+contract&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=MLB+breaking+news+trade+signing+contract&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=NHL+breaking+news+trade+signing+contract&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=NCAA+breaking+news+transfer+deal+record&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=amateur+sports+viral+record+remarkable&hl=en-US&gl=US&ceid=US:en',
+)
+FEED_URLS=tuple(x.strip() for x in os.environ.get('SPORTS_RSS_URLS','').split(',') if x.strip()) or DEFAULT_FEEDS
 MAX_CANDIDATES=int(os.environ.get('MAX_NEW_ITEMS','30')); MAX_AGE_HOURS=max(24,int(os.environ.get('MAX_SOURCE_AGE_HOURS','24')))
 FONT_BOLD='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'; FONT_REG='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 INK=(8,12,20); PAPER=(246,247,242); ACID=(203,255,0); BLUE=(0,82,255); ORANGE=(255,74,30)
@@ -83,21 +92,26 @@ def pub_date(v):
     return (dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
 
 def parse_feed():
-    if not FEED_URL: raise RuntimeError('SPORTS_RSS_URL is required')
-    req=urllib.request.Request(FEED_URL,headers={'User-Agent':'CrashOutSports-SourceMonitor/1.0'})
-    with urllib.request.urlopen(req,timeout=30) as r: raw=r.read()
-    root=ET.fromstring(raw); now=datetime.now(timezone.utc); cutoff=now.timestamp()-MAX_AGE_HOURS*3600; items=[]
-    for item in root.iter():
-        if item.tag.rsplit('}',1)[-1].lower()!='item': continue
-        title=tag_text(item,'title'); desc=tag_text(item,'description') or tag_text(item,'encoded'); link=tag_text(item,'link')
-        guid=tag_text(item,'guid') or link or title; dt=pub_date(tag_text(item,'pubDate') or tag_text(item,'published') or tag_text(item,'date'))
-        if title and dt and cutoff<=dt.timestamp()<=now.timestamp():
-            link=link or FEED_URL
-            items.append({'id':guid,'title':title,'description':desc[:3500],'link':link,'published':dt.isoformat(),'image_url':feed_image_url(item,link)})
+    now=datetime.now(timezone.utc); cutoff=now.timestamp()-MAX_AGE_HOURS*3600; items=[]
+    for feed_url in FEED_URLS:
+        try:
+            req=urllib.request.Request(feed_url,headers={'User-Agent':'CrashOutSports-SourceMonitor/1.0'})
+            with urllib.request.urlopen(req,timeout=30) as r: raw=r.read()
+            root=ET.fromstring(raw)
+        except Exception as error:
+            print('Feed failed:',feed_url,error); continue
+        for item in root.iter():
+            if item.tag.rsplit('}',1)[-1].lower()!='item': continue
+            title=tag_text(item,'title'); desc=tag_text(item,'description') or tag_text(item,'encoded'); link=tag_text(item,'link')
+            guid=tag_text(item,'guid') or link or title; dt=pub_date(tag_text(item,'pubDate') or tag_text(item,'published') or tag_text(item,'date'))
+            if title and dt and cutoff<=dt.timestamp()<=now.timestamp():
+                link=link or feed_url
+                items.append({'id':guid,'title':title,'description':desc[:3500],'link':link,'published':dt.isoformat(),'image_url':feed_image_url(item,link)})
     seen=set(); out=[]
     for x in sorted(items,key=lambda a:a['published'],reverse=True):
         k=re.sub(r'[^a-z0-9]+',' ',x['title'].lower()).strip()
         if k not in seen: seen.add(k); out.append(x)
+    if not out: raise RuntimeError('All sports feeds failed or contained no current stories')
     return out[:MAX_CANDIDATES]
 
 def existing():

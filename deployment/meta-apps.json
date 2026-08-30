@@ -1,0 +1,14 @@
+{
+  "threads_app": {
+    "name": "Crash Out Sports Publisher",
+    "app_id": "1741327097154332",
+    "status": "development"
+  },
+  "instagram_app": {
+    "name": "Crash Out Sports Publishing",
+    "app_id": "1387064863617326",
+    "status": "development"
+  },
+  "business_portfolio": null,
+  "publishing_enabled": false
+}
