@@ -12,7 +12,7 @@ Required repository secrets:
 
 The repository must be public so Meta can download images from `raw.githubusercontent.com`. Tokens remain encrypted GitHub Actions secrets and are never committed. The default source monitor checks independent WNBA, NBA, NFL, MLB, NHL, NCAA and unusual-sports news searches; `SPORTS_RSS_URLS` can optionally replace them with a comma-separated approved feed list.
 
-Add each carousel's PNG files under `media/`, then add a matching JSON file under `queue/` with `status` set to `ready`. The workflow publishes every ready item and changes its status to `published`.
+Every feed post uses one to three branded slots. One slot is published through Meta as a single-image feed post; two or three slots are published as a true carousel. Put the assets under `media/`, then add a matching JSON file under `queue/` with `status` set to `ready`.
 
 Instagram's API cannot attach a song from Instagram's licensed music library to a feed carousel. That music selection remains a manual Instagram-app step.
 
@@ -24,6 +24,13 @@ and contract details must not be stated as final until their status is verified.
 Every ready item must use a rights-cleared, event-relevant visual. Source photos may be
 used as factual references for materially original editorial artwork, but scraped broadcast
 frames, watermarked photography and unlicensed highlight footage are rejected.
+
+The visual must show the actual featured athlete, coach, team or event. The preferred path
+creates owned editorial artwork from a current factual reference. If image-generation quota
+is unavailable, the fallback is a current official press photo or clearly reuse-permitted
+photo with its source URL, rights basis, capture/publication date and event relevance recorded.
+Never substitute an old photo merely because the subject matches, and never scrape a random
+search-result image.
 
 The brand lockup is always `CRASH OUT SPORTS`. The system covers WNBA, NBA, NFL, MLB,
 NHL and NCAA, with regular women's-sports coverage and a limited verified lane for amateur,

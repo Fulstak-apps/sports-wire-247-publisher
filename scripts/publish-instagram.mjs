@@ -102,6 +102,11 @@ async function waitForThreadsContainer(containerId) {
 }
 
 async function publishInstagramFeed(item) {
+  if (item.slides.length === 1) {
+    const single = await instagramPost("media", { image_url: slideUrl(item, 0), caption: item.caption });
+    await waitForInstagramContainer(single.id);
+    return instagramPost("media_publish", { creation_id: single.id });
+  }
   const childIds = [];
   for (let index = 0; index < item.slides.length; index += 1) {
     const child = await instagramPost("media", { image_url: slideUrl(item, index), is_carousel_item: "true" });
@@ -126,6 +131,15 @@ async function publishInstagramStory(item) {
 }
 
 async function publishThreadsCarousel(item) {
+  if (item.slides.length === 1) {
+    const single = await threadsPost("threads", {
+      media_type: "IMAGE",
+      image_url: slideUrl(item, 0),
+      text: item.threads_text || item.caption
+    });
+    await waitForThreadsContainer(single.id);
+    return threadsPost("threads_publish", { creation_id: single.id });
+  }
   const children = [];
   for (let index = 0; index < item.slides.length; index += 1) {
     const child = await threadsPost("threads", {
@@ -157,8 +171,8 @@ for (const file of files) {
 for (const file of files) {
   const itemPath = path.join(queueDir, file);
   const item = JSON.parse(await fs.readFile(itemPath, "utf8"));
-  if (!Array.isArray(item.slides) || item.slides.length < 2 || item.slides.length > 3) {
-    console.error(`Skipped ${file}: Crash Out Sports carousels require two slides by default and never more than three`);
+  if (!Array.isArray(item.slides) || item.slides.length < 1 || item.slides.length > 3) {
+    console.error(`Skipped ${file}: Crash Out Sports feed posts require one to three slides`);
     continue;
   }
   if (item.status === "paused" || item.status === "media_refresh_required") continue;

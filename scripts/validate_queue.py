@@ -59,8 +59,8 @@ def main():
                 errors += fail(f"invalid HTTPS URL in {url_field}: {url}")
 
     slides = item.get("slides", [])
-    if len(slides) not in {2, 3}:
-        errors += fail("carousel must contain two slides by default or three when additional context is necessary")
+    if len(slides) not in {1, 2, 3}:
+        errors += fail("feed post must contain one, two, or three slides")
     for relative in slides:
         path = root / relative
         if not path.exists():

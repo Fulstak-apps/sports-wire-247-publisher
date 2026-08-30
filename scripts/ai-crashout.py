@@ -83,6 +83,14 @@ def image_data_url(url):
     out=io.BytesIO(); image.save(out,'JPEG',quality=92,optimize=True)
     return 'data:image/jpeg;base64,'+base64.b64encode(out.getvalue()).decode('ascii')
 
+def official_press_source(url):
+    host=(urllib.parse.urlparse(url).hostname or '').lower()
+    approved=('nba.com','wnba.com','nfl.com','mlb.com','nhl.com','ncaa.com')
+    return any(host==domain or host.endswith('.'+domain) for domain in approved)
+
+def photo_bytes(reference_data_url):
+    return base64.b64decode(reference_data_url.split(',',1)[1])
+
 def pub_date(v):
     if not v:return None
     try: dt=parsedate_to_datetime(v)
@@ -133,8 +141,8 @@ Prioritize confirmed trades, free-agent signings, contract extensions, releases,
 
 For trades and contracts, verify teams, players, years, total value, guaranteed money, picks, protections, conditions, physicals and league-approval status before stating details. For injuries, do not diagnose beyond official reporting. Clearly label a report, negotiation, rumor, allegation or pending transaction; never write it as confirmed.
 
-Return ONLY JSON: {{"index":number,"league":string,"story_type":string,"confirmation_status":"confirmed"|"reported"|"pending"|"rumor","headline":string,"story":string,"caption":string,"visual_scene":string,"source_label":string,"verification_sources":[{{"name":string,"url":string}}],"featured_person":string,"instagram_handle":string,"instagram_profile_url":string,"carousel_pages":2_or_3,"extra_context":string}}.
-Headline max 95 characters and factual. Story must explain what happened and why it matters. verification_sources must contain at least two distinct HTTPS URLs that directly support the core claim. visual_scene must describe the specific event shown by the selected source image, not an invented or abstract scene. Verify any displayed Instagram handle through web search; never infer it from a name. Use two carousel pages by default and three only for a genuinely complex deal, trade package or multi-part development.
+Return ONLY JSON: {{"index":number,"league":string,"story_type":string,"confirmation_status":"confirmed"|"reported"|"pending"|"rumor","headline":string,"story":string,"caption":string,"visual_scene":string,"source_label":string,"verification_sources":[{{"name":string,"url":string}}],"featured_person":string,"instagram_handle":string,"instagram_profile_url":string,"carousel_pages":1_or_2_or_3,"extra_context":string}}.
+Headline max 95 characters and factual. Story must explain what happened and why it matters. verification_sources must contain at least two distinct HTTPS URLs that directly support the core claim. visual_scene must describe the specific event shown by the selected source image, not an invented or abstract scene. Verify any displayed Instagram handle through web search; never infer it from a name. Choose one page for a simple headline that needs no explainer, two for a normal story, and three only for a complex deal, trade package, timeline or multi-part development.
 CANDIDATES:\n{text}'''
     r=client.responses.create(model='gpt-5.6-luna',tools=[{'type':'web_search'}],input=prompt)
     m=re.search(r'\{.*\}',r.output_text.strip(),re.S)
@@ -222,10 +230,20 @@ def main():
     if len(verified_urls)<2: raise RuntimeError('Two independent credible verification sources are required')
     reference_url,reference_data=discover_source_image(src); person=clean(choice.get('featured_person')); handle=clean(choice.get('instagram_handle')); profile=clean(choice.get('instagram_profile_url')); handle=handle if handle.startswith('@') else ''
     if person and (not handle or 'instagram.com/' not in profile):raise RuntimeError('Featured-person Instagram handle was not verified')
-    person_label=f'{person.upper()}  {handle}' if person and handle else ''; extra_context=clean(choice.get('extra_context')); pages=3 if str(choice.get('carousel_pages') or 2).strip()=='3' and extra_context else 2
-    print('AI selected:',headline); print('Using source visual reference:',reference_url); print('Generating source-grounded comic art...'); art=generate_art(choice['visual_scene'],headline,reference_data); sid=next_id(headline); slides,ps=assets(sid,headline,story,art,label,person_label,pages,extra_context); url=src['link']; identity_line=f'\n\n{person} ({handle})' if person_label else ''
+    person_label=f'{person.upper()}  {handle}' if person and handle else ''; extra_context=clean(choice.get('extra_context')); requested_pages=int(choice.get('carousel_pages') or 2); pages=3 if requested_pages==3 and extra_context else max(1,min(2,requested_pages))
+    print('AI selected:',headline); print('Using source visual reference:',reference_url); print('Generating source-grounded comic art...')
+    visual_type='ai_original_editorial_art_from_event_reference'; visual_rights='owned'; ai_art=True
+    try:
+        art=generate_art(choice['visual_scene'],headline,reference_data)
+    except Exception as generation_error:
+        if not official_press_source(src['link']):
+            raise RuntimeError('Image generation failed and no current official press photo is available for fallback') from generation_error
+        print('Image generation unavailable; using current official press photo fallback.')
+        art=photo_bytes(reference_data); visual_type='current_official_press_photo'; visual_rights='press_use'; ai_art=False
+    sid=next_id(headline); slides,ps=assets(sid,headline,story,art,label,person_label,pages,extra_context); url=src['link']; identity_line=f'\n\n{person} ({handle})' if person_label else ''
     source_lines='\n'.join(f'- {clean(s.get("name") or "Source")}: {clean(s.get("url"))}' for s in verification_sources if isinstance(s,dict))
-    item={'id':sid,'status':'ready','brand':'Crash Out Sports','league':clean(choice.get('league')),'story_type':clean(choice.get('story_type')),'confirmation_status':clean(choice.get('confirmation_status')),'verification_source_count':len(verified_urls),'ai_generated_art':True,'visual_asset_type':'ai_original_editorial_art_from_event_reference','visual_asset_rights':'owned','created_at':datetime.now(timezone.utc).isoformat(),'source':label,'source_urls':verified_urls,'source_url':url,'source_guid':src['id'],'source_title':src['title'],'source_published_at':src['published'],'story_fingerprint':re.sub(r'[^a-z0-9]+',' ',headline.lower()).strip(),'headline':headline,'body':story,'caption':f'{caption}{identity_line}\n\nSources:\n{source_lines}\n\n#CrashOutSports #SportsNews','threads_text':f'{headline}{identity_line}\n\n{story}\n\n#CrashOutSports','featured_person':person,'person_instagram_handle':handle,'person_handle_verified':bool(handle),'person_handle_verified_url':profile,'displayed_person_label':person_label,'visual_prompt':choice['visual_scene'],'slides':[str(p.relative_to(ROOT)) for p in slides],'carousel_page_count':len(slides),'story':str(ps.relative_to(ROOT)),'media_urls':[],'source_image_url':reference_url,'source_photo_used':True,'source_image_role':'factual visual reference only; final art is a materially redrawn original editorial illustration'}
+    if pages == 1: slides = slides[:1]
+    item={'id':sid,'status':'ready','brand':'Crash Out Sports','league':clean(choice.get('league')),'story_type':clean(choice.get('story_type')),'confirmation_status':clean(choice.get('confirmation_status')),'verification_source_count':len(verified_urls),'ai_generated_art':ai_art,'visual_asset_type':visual_type,'visual_asset_rights':visual_rights,'created_at':datetime.now(timezone.utc).isoformat(),'source':label,'source_urls':verified_urls,'source_url':url,'source_guid':src['id'],'source_title':src['title'],'source_published_at':src['published'],'story_fingerprint':re.sub(r'[^a-z0-9]+',' ',headline.lower()).strip(),'headline':headline,'body':story,'caption':f'{caption}{identity_line}\n\nSources:\n{source_lines}\n\n#CrashOutSports #SportsNews','threads_text':f'{headline}{identity_line}\n\n{story}\n\n#CrashOutSports','featured_person':person,'person_instagram_handle':handle,'person_handle_verified':bool(handle),'person_handle_verified_url':profile,'displayed_person_label':person_label,'visual_prompt':choice['visual_scene'],'slides':[str(p.relative_to(ROOT)) for p in slides],'carousel_page_count':len(slides),'story':str(ps.relative_to(ROOT)),'media_urls':[],'source_image_url':reference_url,'source_photo_used':True,'source_image_role':'current factual visual used in the finished branded post','photo_recency_checked':True,'photo_event_relevance':'event_specific','photo_context_summary':choice['visual_scene'],'photo_capture_date':src['published'][:10],'visual_asset_source_urls':[src['link']]}
     (QUEUE/f'{sid}.json').write_text(json.dumps(item,indent=2)+'\n'); print('Created:',sid)
 if __name__=='__main__':
     try:
