@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "crash-out-sports-publisher",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-08-29",
+  "workers_dev": true,
+  "preview_urls": false,
+  "kv_namespaces": [
+    {
+      "binding": "CRASH_OUT_SPORTS_STATE",
+      "id": "0b4b76954ed0435387a6c54830ebec5b"
+    }
+  ],
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  }
+}

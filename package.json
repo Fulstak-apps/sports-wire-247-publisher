@@ -1,0 +1,11 @@
+{
+  "name": "crash-out-sports-publisher",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "publish": "python scripts/convert-media-to-jpeg.py && node scripts/publish-instagram.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "core_leagues": ["WNBA", "NBA", "NFL", "MLB", "NHL", "NCAA"],
+  "secondary_sports": ["soccer", "combat sports", "golf", "tennis", "motorsports", "international sports", "high school", "amateur", "extreme sports"],
+  "story_types": ["breaking news", "trade", "free agency", "contract", "injury", "suspension", "coaching move", "draft", "score", "record", "athlete business deal", "ownership deal", "media rights", "viral verified moment"],
+  "cadence_minutes": 20,
+  "max_source_age_hours": 24,
+  "dedupe_hours": 72,
+  "verification_sources_required": 2,
+  "wnba_equal_weight": true,
+  "women_sports_regular_coverage": true,
+  "viral_amateur_max_share_percent": 15,
+  "stories_require_rights_cleared_visual": true,
+  "publish_instagram_stories": true,
+  "crosspost_threads": true,
+  "fail_closed": true
+}

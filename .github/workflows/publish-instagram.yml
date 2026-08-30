@@ -1,0 +1,93 @@
+name: Crash Out Sports 24/7 monitor and publisher
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "queue/**"
+      - "media/**"
+  workflow_dispatch:
+  schedule:
+    - cron: "7,27,47 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crash-out-sports-publisher
+  cancel-in-progress: false
+
+env:
+  SPORTS_RSS_URL: ${{ secrets.SPORTS_RSS_URL }}
+  MAX_NEW_ITEMS: "30"
+  MAX_SOURCE_AGE_HOURS: "24"
+
+jobs:
+  monitor-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install AI publisher dependencies
+        run: python -m pip install --disable-pip-version-check pillow openai
+
+      - name: Select and create one verified Crash Out Sports package
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/ai-crashout.py
+
+      - name: Remove stale queue items
+        run: python scripts/expire-stale-queue.py
+
+      - name: Block every legacy/non-AI graphic
+        run: node scripts/block-non-ai.mjs
+
+      - name: Commit AI assets and queue state
+        run: |
+          if [ -z "$(git status --porcelain -- queue media)" ]; then
+            echo "No queue/media changes."
+            exit 0
+          fi
+          git config user.name "Crash Out Sports"
+          git config user.email "actions@users.noreply.github.com"
+          git add queue media
+          git commit -m "Add verified Crash Out Sports package"
+          git pull --rebase origin main
+          git push
+
+      - name: Wait for public media propagation
+        run: sleep 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Publish next ready Crash Out Sports story
+        env:
+          CRASH_OUT_SPORTS_BRAND: "CRASH OUT SPORTS"
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          PUBLISH_INSTAGRAM_STORIES: "true"
+          MAX_FEED_POSTS_PER_RUN: "1"
+        run: node scripts/publish-instagram.mjs
+
+      - name: Save publication log
+        if: ${{ always() }}
+        run: |
+          if [ -z "$(git status --porcelain -- queue)" ]; then exit 0; fi
+          git config user.name "Crash Out Sports"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- queue
+          git commit -m "Log Crash Out Sports publication" || true
+          git pull --rebase origin main || true
+          git push || true
