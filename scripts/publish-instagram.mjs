@@ -171,8 +171,8 @@ for (const file of files) {
 for (const file of files) {
   const itemPath = path.join(queueDir, file);
   const item = JSON.parse(await fs.readFile(itemPath, "utf8"));
-  if (!Array.isArray(item.slides) || item.slides.length < 1 || item.slides.length > 3) {
-    console.error(`Skipped ${file}: Sports Wire 24/7 feed posts require one to three slides`);
+  if (!Array.isArray(item.slides) || item.slides.length < 1 || item.slides.length > 5) {
+    console.error(`Skipped ${file}: feed posts require one to five slides`);
     continue;
   }
   if (item.status === "paused" || item.status === "media_refresh_required") continue;
