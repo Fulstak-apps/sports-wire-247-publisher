@@ -36,8 +36,8 @@ function storyUrl(item) {
 function hasPublishableVisual(item) {
   if (["original_graphic", "ai_original_editorial_art_from_event_reference"].includes(item.visual_asset_type)
       && item.visual_asset_rights === "owned"
-      && item.source_photo_used === true
-      && /^https?:\/\//i.test(item.source_image_url || "")
+      && ((item.source_photo_used === true && /^https?:\/\//i.test(item.source_image_url || ""))
+        || (Array.isArray(item.visual_asset_source_urls) && item.visual_asset_source_urls.length >= 1))
       && Number(item.verification_source_count || 0) >= 2) return true;
   if (item.photo_recency_checked !== true) return false;
   if (!["event_specific", "same_campaign", "current_subject_portrait"].includes(item.photo_event_relevance)) return false;
