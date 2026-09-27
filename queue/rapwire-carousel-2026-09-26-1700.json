@@ -57,5 +57,12 @@
   "caption_under_2200_chars": true,
   "distinct_stories": 5,
   "layout_template": "rapwire-unified-v3",
-  "source_guid": "rapwire-carousel-2026-09-26-1700"
+  "source_guid": "rapwire-carousel-2026-09-26-1700",
+  "publisher_attempt": {
+    "status": "blocked",
+    "error": "HTTP 404: workflow publish-instagram.yml not found on the default branch (https://api.github.com/repos/Fulstak-apps/sports-wire-247-publisher/actions/workflows/publish-instagram.yml)",
+    "attempted_at": "2026-09-27T00:08:00Z",
+    "instagram_media_id": null,
+    "threads_media_id": null
+  }
 }
