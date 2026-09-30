@@ -10,5 +10,13 @@
     "status": "development"
   },
   "business_portfolio": null,
-  "publishing_enabled": false
+  "publishing_enabled": false,
+  "required_secrets": [
+    "SPORTS_WIRE_OPENAI_API_KEY",
+    "SPORTS_WIRE_INSTAGRAM_ACCESS_TOKEN",
+    "SPORTS_WIRE_INSTAGRAM_USER_ID",
+    "SPORTS_WIRE_THREADS_ACCESS_TOKEN",
+    "SPORTS_WIRE_THREADS_USER_ID"
+  ],
+  "safety_note": "Keep publishing_enabled false until the Sports Wire 24/7 Meta apps are live and the account credentials are configured."
 }
