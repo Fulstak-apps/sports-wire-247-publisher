@@ -19,22 +19,18 @@ const queueDir = "queue";
 const files = (await fs.readdir(queueDir)).filter((name) => name.endsWith(".json")).sort();
 const maxFeedPostsPerRun = Number(process.env.MAX_FEED_POSTS_PER_RUN || 1);
 
-const sportsLeagues = new Set(["WNBA", "NBA", "NFL", "MLB", "NHL", "NCAA", "Soccer", "Combat sports", "Golf", "Tennis", "Motorsports", "International", "Amateur", "High school", "Youth", "Other sports"]);
+const sportsLeagues = new Set(["WNBA", "NBA", "NFL", "MLB", "NHL", "NCAA", "SOCCER", "COMBAT SPORTS", "GOLF", "TENNIS", "MOTORSPORTS", "INTERNATIONAL", "AMATEUR", "HIGH SCHOOL", "YOUTH", "OTHER SPORTS"]);
 
 function isSportsWireItem(item) {
+  const league = typeof item.league === "string" ? item.league.trim().toUpperCase() : "";
+  const recognizedLeague = sportsLeagues.has(league) || /^(WNBA|NBA|NFL|MLB|NHL|NCAA)(\\\\b|[- /])/.test(league);
   return item.brand === "Sports Wire 24/7"
-    && typeof item.league === "string"
-    && sportsLeagues.has(item.league)
+    && recognizedLeague
     && typeof item.story_type === "string"
     && item.story_type.length > 0
     && Array.isArray(item.source_urls)
     && item.source_urls.length >= 2;
 }
-
-const maxFeedPostsPerRollingDay = 96;
-let feedPostsPublishedThisRun = 0;
-const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
-const mediaUrl = (relativePath) => `https://raw.githubusercontent.com/${repository}/${refName}/${relativePath}`;
 
 function slideUrl(item, index) {
   const remote = Array.isArray(item.media_urls) ? item.media_urls[index] : "";
