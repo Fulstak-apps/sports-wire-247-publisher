@@ -2,8 +2,13 @@ name: Sports Wire 24/7 monitor and publisher
 
 on:
   schedule:
-    - cron: "7,27,47 * * * *"
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "queue/**"
+      - "media/**"
 
 permissions:
   contents: write
@@ -43,20 +48,31 @@ jobs:
           MAX_SOURCE_AGE_HOURS: "24"
         run: python scripts/ai-crashout.py
 
-      - name: Validate every ready item
+      - name: Validate ready SportsWire items
         if: steps.gate.outputs.enabled == 'true'
         run: |
           set -euo pipefail
+          shopt -s nullglob
           for item in queue/*.json; do
-            [ -f "$item" ] || continue
             if python -c 'import json,sys; raise SystemExit(0 if json.load(open(sys.argv[1])).get("status")=="ready" else 1)' "$item"; then
               python scripts/validate_queue.py "$item"
             fi
           done
 
-      - name: Optimize generated artwork
+      - name: Convert oversized source images
         if: steps.gate.outputs.enabled == 'true'
         run: python scripts/convert-media-to-jpeg.py
+
+      - name: Commit generated queue and media before Meta fetches them
+        if: steps.gate.outputs.enabled == 'true'
+        run: |
+          if [ -z "$(git status --porcelain -- queue media)" ]; then exit 0; fi
+          git config user.name "Sports Wire 24/7"
+          git config user.email "actions@users.noreply.github.com"
+          git add queue media
+          git commit -m "Queue verified Sports Wire 24/7 story"
+          git pull --rebase origin main
+          git push origin HEAD:main
 
       - name: Publish one SportsWire story
         if: steps.gate.outputs.enabled == 'true'
@@ -71,13 +87,13 @@ jobs:
           MAX_FEED_POSTS_PER_RUN: "1"
         run: node scripts/publish-instagram.mjs
 
-      - name: Save queue, optimized media, and publication state
+      - name: Save publication state
         if: always() && steps.gate.outputs.enabled == 'true'
         run: |
-          if [ -z "$(git status --porcelain -- queue media)" ]; then exit 0; fi
+          if [ -z "$(git status --porcelain -- queue)" ]; then exit 0; fi
           git config user.name "Sports Wire 24/7"
           git config user.email "actions@users.noreply.github.com"
-          git add queue media
-          git commit -m "Save Sports Wire 24/7 publishing state"
+          git add queue
+          git commit -m "Save Sports Wire 24/7 publication state" || true
           git pull --rebase origin main
           git push origin HEAD:main
