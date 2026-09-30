@@ -23,7 +23,7 @@ const sportsLeagues = new Set(["WNBA", "NBA", "NFL", "MLB", "NHL", "NCAA", "SOCC
 
 function isSportsWireItem(item) {
   const league = typeof item.league === "string" ? item.league.trim().toUpperCase() : "";
-  const recognizedLeague = sportsLeagues.has(league) || /^(WNBA|NBA|NFL|MLB|NHL|NCAA)(\\\\b|[- /])/.test(league);
+  const recognizedLeague = sportsLeagues.has(league) || /^(WNBA|NBA|NFL|MLB|NHL|NCAA)(\\b|[- /])/.test(league);
   return item.brand === "Sports Wire 24/7"
     && recognizedLeague
     && typeof item.story_type === "string"
