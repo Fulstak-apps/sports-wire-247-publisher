@@ -18,6 +18,19 @@ const threadsBase = "https://graph.threads.net/v1.0";
 const queueDir = "queue";
 const files = (await fs.readdir(queueDir)).filter((name) => name.endsWith(".json")).sort();
 const maxFeedPostsPerRun = Number(process.env.MAX_FEED_POSTS_PER_RUN || 1);
+
+const sportsLeagues = new Set(["WNBA", "NBA", "NFL", "MLB", "NHL", "NCAA", "Soccer", "Combat sports", "Golf", "Tennis", "Motorsports", "International", "Amateur", "High school", "Youth", "Other sports"]);
+
+function isSportsWireItem(item) {
+  return item.brand === "Sports Wire 24/7"
+    && typeof item.league === "string"
+    && sportsLeagues.has(item.league)
+    && typeof item.story_type === "string"
+    && item.story_type.length > 0
+    && Array.isArray(item.source_urls)
+    && item.source_urls.length >= 2;
+}
+
 const maxFeedPostsPerRollingDay = 96;
 let feedPostsPublishedThisRun = 0;
 const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -171,6 +184,10 @@ for (const file of files) {
 for (const file of files) {
   const itemPath = path.join(queueDir, file);
   const item = JSON.parse(await fs.readFile(itemPath, "utf8"));
+  if (!isSportsWireItem(item)) {
+    console.error(`Skipped ${file}: queue item is not verified Sports Wire 24/7 sports content`);
+    continue;
+  }
   if (!Array.isArray(item.slides) || item.slides.length < 1 || item.slides.length > 5) {
     console.error(`Skipped ${file}: feed posts require one to five slides`);
     continue;
