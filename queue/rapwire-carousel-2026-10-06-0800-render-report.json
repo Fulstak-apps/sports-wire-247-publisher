@@ -1,0 +1,17 @@
+{
+  "batch_id": "rapwire-carousel-2026-10-06-0800",
+  "dimensions": "1080x1350",
+  "slides_inspected_at_full_resolution": true,
+  "slide_count": 5,
+  "distinct_stories": 5,
+  "headline_font_size_px": 104,
+  "deck_font_size_px": 42,
+  "headline_and_deck_on_art": true,
+  "no_top_banner": true,
+  "subjects_present": true,
+  "subjects_unobstructed": true,
+  "official_logo": "assets/rapwire247-logo.png",
+  "logo_transparent_and_unboxed": true,
+  "generic_art_rejected": true,
+  "visual_qc": "passed"
+}

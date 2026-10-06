@@ -1,0 +1,56 @@
+{
+  "batch_id": "rapwire-carousel-2026-10-06-0800",
+  "checked_at": "2026-10-06T15:25:54Z",
+  "stories": [
+    {
+      "slide": 1,
+      "topic": "Drake Grammy non-submission",
+      "headline": "Drake skips the Grammys",
+      "source_urls": [
+        "https://au.rollingstone.com/music/music-news/drake-grammys-not-submitting-iceman-habibti-maid-of-honour-101865/",
+        "https://www.billboard.com/music/awards/hip-hop-grammys-2027-big-categories-outlook-1236352338/"
+      ],
+      "verification": "Rolling Stone reports the Billboard-sourced non-submission of Iceman, Habibti and Maid of Honour; the report also notes Drake's prior Grammy stance and the chart context."
+    },
+    {
+      "slide": 2,
+      "topic": "Megan Thee Stallion Hottieween 2026",
+      "headline": "Hottieween returns",
+      "source_urls": [
+        "https://www.complex.com/music/a/tracewilliamcowen/megan-thee-stallion-hottieween-2026",
+        "https://zoukgrouplv.com/event/EVE50511500020261030/hottieween/"
+      ],
+      "verification": "Complex reports Megan's Oct. 30 Hottieween announcement and Cirque du Soleil partnership; Zouk's official event page confirms date, venue, ticketing and the Pete & Thomas Foundation benefit."
+    },
+    {
+      "slide": 3,
+      "topic": "Young Thug New Generation Tour",
+      "headline": "Young Thug passes the mic",
+      "source_urls": [
+        "https://www.youtubetheater.com/news/detail/young-stoner-life-records-young-thug-present-the-new-generation-tour-coming-to-youtube-theater-october-4",
+        "https://www.livenation.com/artist/K8vZ917uZFf/young-thug-events-events"
+      ],
+      "verification": "YouTube Theater's announcement identifies the first headlining run since 2019, NAV support and the YSL roster; Live Nation independently lists the U.S. and European tour dates."
+    },
+    {
+      "slide": 4,
+      "topic": "OG 3Three bond ruling",
+      "headline": "OG 3Three stays free",
+      "source_urls": [
+        "https://www.complex.com/music/a/shawn-setaro/og-3three-remains-free-attempt-reverse-bond-fails",
+        "https://24hip-hop.com/og-3three-200k-bond-prosecutors-hearing/"
+      ],
+      "verification": "Complex reports Judge Drew B. Tipton denied the federal request to revoke the $200,000 bond on Oct. 5; 24Hip-Hop documents the earlier bond challenge and the allegations as contested pretrial claims."
+    },
+    {
+      "slide": 5,
+      "topic": "GTA VI realism and playability",
+      "headline": "GTA VI chooses fun",
+      "source_urls": [
+        "https://www.gamesradar.com/games/grand-theft-auto/gta-6-boss-says-rockstar-has-to-forego-realism-for-the-sake-of-the-players-realism-can-help-greatly-with-immersion-but-too-much-can-feel-tedious/",
+        "https://www.pcgamer.com/games/grand-theft-auto/gta-6-wont-be-letting-up-on-the-satire-if-you-are-going-to-put-all-this-effort-into-creating-a-version-of-todays-world-it-has-to-be-more-over-the-top-more-insane-more-in-your-face/"
+      ],
+      "verification": "GamesRadar and PC Gamer both report the new Love magazine interview in which Rockstar North co-head Rob Nelson explains the balance between realism, immersion and player convenience."
+    }
+  ]
+}
