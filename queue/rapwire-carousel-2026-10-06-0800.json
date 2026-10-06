@@ -146,5 +146,19 @@
     "caption_ends_only_with_rapwire247": true,
     "passed": true
   },
-  "publish_blocked": false
+  "publish_blocked": false,
+  "last_publish_attempt": {
+    "workflow_run_id": 37492697763,
+    "workflow_url": "https://github.com/Fulstak-apps/rapwire-instagram-publisher/actions/runs/37492697763",
+    "attempted_at": "2026-10-06T16:04:26Z",
+    "status": "auth_failure",
+    "confirmed_publications": 0,
+    "instagram_media_id": null,
+    "instagram_permalink": null,
+    "threads_media_id": null,
+    "threads_permalink": null,
+    "error": "Instagram offline: Instagram identity check failed: {\"error\":{\"message\":\"Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons.\",\"type\":\"OAuthException\",\"code\":190,\"error_subcode\":0,\"fbtrace_id\":\"ANBWacX7aNWPW3jeQoGWwDF\"}}. Threads available; no carousel publication was confirmed.",
+    "retry_safe": true,
+    "next_action": "Refresh the Instagram access token; leave this queue item ready for the next scheduled publisher heartbeat."
+  }
 }
